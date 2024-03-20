@@ -5,6 +5,9 @@ class Character:
 
     def __init__(self, name: str = None):
         """
+
+
+
         Core Stats: Everyone has these
         - Strength: How much you can lift. How strong you are. How hard you punch, etc.
         - Dexterity: How quick your limbs can perform intricate tasks. How adept you are at avoiding blows you anticipate. Impacts speed.
