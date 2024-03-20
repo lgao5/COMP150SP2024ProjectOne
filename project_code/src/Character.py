@@ -5,9 +5,6 @@ class Character:
 
     def __init__(self, name: str = None):
         """
-
-        this is another test
-
         Core Stats: Everyone has these
         - Strength: How much you can lift. How strong you are. How hard you punch, etc.
         - Dexterity: How quick your limbs can perform intricate tasks. How adept you are at avoiding blows you anticipate. Impacts speed.
@@ -21,6 +18,7 @@ class Character:
         - Spirit: Catchall for ability to perform otherworldly acts. High spirit is rare. Different skills have different resource pools they might use like mana, stamina, etc. These are unaffected by spirit. Instead spirit is a measure of how hard it is to learn new otherworldly skills and/or master general skills.
          """
         self.name = self._generate_name() if name is None else name
+        self.living_status = True
         self.strength: Strength = Strength(self)
         self.dexterity: Dexterity = Dexterity(self)
         self.constitution: Constitution = Constitution(self)
