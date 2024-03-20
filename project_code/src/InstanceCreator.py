@@ -24,4 +24,5 @@ class InstanceCreator:
             return None
 
     def _load_user(self) -> User:
-        pass
+        username = self.parser.parse("Enter your username: ")
+        return self.user_factory.get_user_by_username(username)
