@@ -6,7 +6,7 @@ class Character:
     def __init__(self, name: str = None):
         """
 
-
+        this is another test
 
         Core Stats: Everyone has these
         - Strength: How much you can lift. How strong you are. How hard you punch, etc.
