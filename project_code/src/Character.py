@@ -29,7 +29,15 @@ class Character:
         self.knowledge: Knowledge = Knowledge(self)
         self.willpower: Willpower = Willpower(self)
         self.spirit: Spirit = Spirit(self)
-        
+        self.capacities = []  # List to hold capacity instances
 
+    def add_capacity(self, capacity):
+        """Add a capacity to the character."""
+        self.capacities.append(capacity)
+"""
+The add_capacity function in the Character 
+class is designed to manage different types of 
+"capacities" that a character might possess.
+"""
     def _generate_name(self):
         return "Bob"
