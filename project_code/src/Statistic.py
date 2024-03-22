@@ -87,3 +87,27 @@ class Spirit(Statistic):
     def __init__(self, value):
         super().__init__(value)
         self.description = "Spirit is a measure of how difficult it is to learn new skills."
+
+
+class Capacity(Statistic):
+    def __init__(self, legacy_points: int, capacity_type: str):
+        super().__init__(legacy_points)
+        self.capacity_type = capacity_type
+        self.associated_ability = None
+        self.description = f"{capacity_type} capacity is a measure of how much {capacity_type} a character can hold."
+
+    def associate_ability(self, ability_name: str):
+        """Associate a specific ability with this capacity."""
+        self.associated_ability = ability_name
+
+    def __str__(self):
+        if self.associated_ability:
+            return f"{self.capacity_type} Capacity for {self.associated_ability}: {self.value}"
+        return f"{self.capacity_type} Capacity: {self.value}"
+
+""" 
+Example using capacity:
+mana_capacity = Capacity(10, 'Mana')
+mana_capacity.associate_ability('Fireball')
+print(mana_capacity)
+"""
