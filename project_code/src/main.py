@@ -114,6 +114,10 @@ class Location:
         self.parser = parser
         self.events = [Event(self.parser) for _ in range(number_of_events)]
 
+    def add_event(self, event):
+        #add an event to the location
+        self.events.append(event)
+
     import json
 
     def create_custom_event_from_static_text_file(self, file_path):
@@ -122,6 +126,19 @@ class Location:
             data = json.load(file)
 
         return Event(self.parser, data)
+    
+    def to_json(self) -> dict:
+        return {
+            #convert attributes to JSON-compatible types
+            "number_of_events": len(self.events)
+        }
+    
+    @classmethod
+    def from_json(cls, data: dict, parser) -> 'Location':
+        return cls(
+            parser=parser,
+            number_of_events=data["number_of_events"]
+        )
 
 
 from enum import Enum
@@ -162,11 +179,10 @@ class Event:
             self.secondary: Statistic = Dexterity()
 
         def execute(self, party):
-            chosed_one = self.parser.select_party_member(party)
-            chosen_skill = self.parser.select_skill(chosed_one)
+            chosen_one = self.parser.select_party_member(party)
+            chosen_skill = self.parser.select_skill(chosen_one)
 
-            self.set_status(EventStatus.PASS)
-            pass
+            self.resolve_choice(party, chosen_one, chosen_skill)
 
         def set_status(self, status: EventStatus = EventStatus.UNKNOWN):
             self.status = status
@@ -176,8 +192,16 @@ class Event:
             # if they don't overlap, the character fails
             # if one overlap, the character partially passes
             # if they do overlap, the character passes
-            pass
-            
+            if self.primary and self.secondary:
+                if(self.primary in character.stats and self.secondary in character.stats and chosen_skill.primary == self.primary and chosen_skill.secondary == self.secondary):
+                    self.set_status(EventStatus.PASS)
+                elif (self.primary in character.stats or self.secondary in character.stats or chosen_skill.primary == self.primary or chosen_skill.secondary == self.secondary):
+                    self.set_status(EventStatus.PARTIAL_PASS)
+                else:
+                    self.set_status(EventStatus.FAIL)
+            else:
+                self.set_status(EventStatus.FAIL)
+
 
 class Character:
 
@@ -208,6 +232,21 @@ class Character:
         self.willpower: Willpower = Willpower(self)
         self.spirit: Spirit = Spirit(self)
         self.capacities = []  # List to hold capacity instances
+        self.stats = [
+            self.name, 
+            self.living_status, 
+            self.strength, 
+            self.dexterity, 
+            self.constitution,
+            self.vitality, 
+            self.endurance, 
+            self.intelligence,
+            self.wisdom,
+            self.knowledge,
+            self.willpower,
+            self.spirit,
+            self.capacities
+            ]
 
     """
         The add_capacity function in the Character 
@@ -220,6 +259,42 @@ class Character:
 
     def _generate_name(self):
         return "Bob"
+    
+    def to_json(self) -> dict:
+        return {
+            #convert attributes to JSON-compatible types
+            "name": self.name, 
+            "living_status": self.living_status, 
+            "strength": self.strength, 
+            "dexterity": self.dexterity, 
+            "constitution": self.constitution,
+            "vitality": self.vitality,
+            "endurance": self.endurance,
+            "intelligence": self.intelligence,
+            "wisdom": self.wisdom,
+            "knowledge": self.knowledge,
+            "willpower": self.willpower,
+            "spirit": self.spirit,
+            "capacities": self.capacities
+        }
+    
+    @classmethod
+    def from_json(cls, data: dict) -> 'Character':
+        return cls(
+            name=data["name"], 
+            living_status=data["living_status"], 
+            strength=data["strength"],
+            dexterity=data["dexterity"],
+            constitution=data["constitution"],
+            vitality=data["vitality"],
+            endurance=data["endurance"],
+            intelligence=data["intelligence"],
+            wisdom=data["wisdom"],
+            knowledge=data["knowledge"],
+            willpower=data["willpower"],
+            spirit=data["spirit"],
+            capacities=data["capacities"]
+        )
 
 
 class Game:
@@ -282,23 +357,56 @@ class Game:
             return "Save and quit"
         else:
             return False
+        
+    def to_json(self) -> dict:
+        """
+        Convert the Game instance to a JSON-serializable dictionary.
+        """
+        game_state = {
+            "characters": [character.to_json() for character in self.characters],
+            "locations": [location.tojson() for location in self.locations],
+            "events": [event.to_json() for event in self.events],
+            "continue_playing": self.continue_playing
+        }
+        return game_state
+    
+    @classmethod
+    def load_from_json(cls, data: dict, parser) -> 'Game':
+        """
+        Create a Game instance from a JSON-serializable dictionary.
+        """
+        game = cls(parser)
+        game.characters = [Character.from_json(character_data) for character_data in data["characters"]]
+        game.locations = [Location.from_json(location_data, parser) for location_data in data["locations"]]
+        game.events = [Event.from_json(event_data, parser) for event_data in data["events"]]
+        game.continue_playing = data["continue_playing"]
+        return game
 
+
+import json
+import os
 
 class User:
-
-    def __init__(self, parser, username: str, password: str, legacy_points: int = 0):
+    def __init__(self, username: str, password: str, legacy_points: int = 0):
         self.username = username
         self.password = password
         self.legacy_points = legacy_points
         self.current_game = self._get_retrieve_saved_game_state_or_create_new_game()
-        self.parser = parser
 
     def _get_retrieve_saved_game_state_or_create_new_game(self) -> Game:
-        new_game = Game(self.parser)
-        return new_game
+        save_file = f'save_{self.username}.json'
+        if os.path.exists(save_file):
+            with open(save_file, 'r') as file:
+                game_state = json.load(file)
+                return Game.load_from_json(game_state)  # Assuming Game has a method to load from a JSON
+        else:
+            return Game()
 
     def save_game(self):
-        pass
+        save_file = f'save_{self.username}.json'
+        with open(save_file, 'w') as file:
+            game_state = self.current_game.to_json()  # Assuming Game has a method to convert to JSON
+            json.dump(game_state, file)
 
 
 class UserInputParser:
@@ -371,23 +479,6 @@ class InstanceCreator:
     def _load_user(self) -> User:
         username = self.parser.parse("Enter your username: ")
         return self.user_factory.get_user_by_username(username)
-
-
-class User:
-
-    def __init__(self, parser, username: str, password: str, legacy_points: int = 0):
-        self.username = username
-        self.password = password
-        self.legacy_points = legacy_points
-        self.parser = parser
-        self.current_game = self._get_retrieve_saved_game_state_or_create_new_game()
-
-    def _get_retrieve_saved_game_state_or_create_new_game(self) -> Game:
-        new_game = Game(self.parser)
-        return new_game
-
-    def save_game(self):
-        pass
 
 
 def start_game():
