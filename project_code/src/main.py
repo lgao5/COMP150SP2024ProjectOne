@@ -283,22 +283,30 @@ class Game:
         else:
             return False
 
+import json
+import os
 
 class User:
-
-    def __init__(self, parser, username: str, password: str, legacy_points: int = 0):
+    def __init__(self, input, username: str, password: str, legacy_points: int = 0):
         self.username = username
         self.password = password
         self.legacy_points = legacy_points
         self.current_game = self._get_retrieve_saved_game_state_or_create_new_game()
-        self.parser = parser
 
     def _get_retrieve_saved_game_state_or_create_new_game(self) -> Game:
-        new_game = Game(self.parser)
-        return new_game
+        save_file = f'save_{self.username}.json'
+        if os.path.exists(save_file):
+            with open(save_file, 'r') as file:
+                game_state = json.load(file)
+                return Game.load_from_json(game_state)  # Assuming Game has a method to load from a JSON
+        else:
+            return Game()
 
     def save_game(self):
-        pass
+        save_file = f'save_{self.username}.json'
+        with open(save_file, 'w') as file:
+            game_state = self.current_game.to_json()  # Assuming Game has a method to convert to JSON
+            json.dump(game_state, file)
 
 
 class UserInputParser:
