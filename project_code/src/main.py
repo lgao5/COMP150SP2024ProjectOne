@@ -3,6 +3,7 @@ import json
 import sys
 from typing import List
 import random
+import os
 
 
 class Statistic:
@@ -357,37 +358,11 @@ class Game:
             return "Save and quit"
         else:
             return False
-        
-    def to_json(self) -> dict:
-        """
-        Convert the Game instance to a JSON-serializable dictionary.
-        """
-        game_state = {
-            "characters": [character.to_json() for character in self.characters],
-            "locations": [location.tojson() for location in self.locations],
-            "events": [event.to_json() for event in self.events],
-            "continue_playing": self.continue_playing
-        }
-        return game_state
-    
-    @classmethod
-    def load_from_json(cls, data: dict, parser) -> 'Game':
-        """
-        Create a Game instance from a JSON-serializable dictionary.
-        """
-        game = cls(parser)
-        game.characters = [Character.from_json(character_data) for character_data in data["characters"]]
-        game.locations = [Location.from_json(location_data, parser) for location_data in data["locations"]]
-        game.events = [Event.from_json(event_data, parser) for event_data in data["events"]]
-        game.continue_playing = data["continue_playing"]
-        return game
 
-
-import json
-import os
 
 class User:
-    def __init__(self, username: str, password: str, legacy_points: int = 0):
+
+    def __init__(self, parser, username: str, password: str, legacy_points: int = 0):
         self.username = username
         self.password = password
         self.legacy_points = legacy_points
