@@ -104,7 +104,7 @@ def forest_event(character):
 
 
 def start_game():
-    print("Welcome to the simplified D&D game!")
+    print("Welcome to the Towns Explorer game!")
 
     characters = []
     num_players = int(input("Enter the number of characters (up to 10): "))
