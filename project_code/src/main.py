@@ -19,8 +19,14 @@ class Character:
         self.stats = {
             "Strength": Statistic("Strength", legacy_points),
             "Dexterity": Statistic("Dexterity", legacy_points),
+            "Constitution": Statistic("Constitution", legacy_points),
+            "Vitality": Statistic("Vitality", legacy_points),
+            "Endurance": Statistic("Endurance", legacy_points),
             "Intelligence": Statistic("Intelligence", legacy_points),
-            "Wisdom": Statistic("Wisdom", legacy_points)
+            "Wisdom": Statistic("Wisdom", legacy_points),
+            "Knowledge": Statistic("Knowledge", legacy_points),
+            "Willpower": Statistic("Willpower", legacy_points),
+            "Spirit": Statistic("Spirit", legacy_points)
         }
 
     def __str__(self):
