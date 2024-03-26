@@ -31,11 +31,17 @@ class Character:
             "Willpower": Statistic("Willpower", legacy_points),
             "Spirit": Statistic("Spirit", legacy_points)
         }
+        self.capacity = {
+            "Mana": random.randint(10, 20),
+            "Stamina": random.randint(10, 20),
+            "Psy": random.randint(10, 20)
+        }
 
     def __str__(self):
         stats_info = ', '.join(str(stat) for stat in self.stats.values())
         return f"Character: {self.name}, Stats: {stats_info}, Level: {self.level}, Experience: {self.experience}"
-
+        capacity_info = ', '.join(f"{key}: {value}" for key, value in self.capacity.items())
+        return f"{super().__str__()}, Capacity: {capacity_info}"
     def add_experience(self, amount):
         self.experience += amount
         if self.experience >= 10:  # Arbitrary value for leveling up
@@ -72,31 +78,46 @@ class Location:
             print("Quest failed. Restarting adventure...")
 
 def blacksmith_event(character):
+    if character.capacity["Stamina"] < 13:
+        print(f"{character.name} does not have enough Stamina to help in the blacksmith.")
+        return False
+
     required_stats = {"Strength": 5, "Endurance": 5, "Vitality": 5}
     success = all(character.stats[stat].value > requirement for stat, requirement in required_stats.items())
     if success:
         print("You help the blacksmith and earn a strong sword!")
         character.reduce_stats(required_stats)
+        character.capacity["Stamina"] -= 3  # Reduce capacity
     else:
         print("You watch the blacksmith work and learn about sword making.")
     return success
 
 def castle_event(character):
+    if character.capacity["Psy"] < 14:
+        print(f"{character.name} does not have enough Psy to counsel the king.")
+        return False
+
     required_stats = {"Wisdom": 5, "Intelligence": 5, "Knowledge": 5}
     success = all(character.stats[stat].value > requirement for stat, requirement in required_stats.items())
     if success:
         print("You provide wise counsel to the king and are rewarded!")
         character.reduce_stats(required_stats)
+        character.capacity["Psy"] -= 5  # Reduce capacity
     else:
         print("You wander the castle and marvel at its grandeur.")
     return success
 
 def forest_event(character):
+    if character.capacity["Mana"] < 15:
+        print(f"{character.name} does not have enough Mana to navigate the forest.")
+        return False
+
     required_stats = {"Dexterity": 5, "Spirit": 5, "Willpower": 5}
     success = all(character.stats[stat].value > requirement for stat, requirement in required_stats.items())
     if success:
         print("You navigate the forest adeptly, finding hidden treasures!")
         character.reduce_stats(required_stats)
+        character.capacity["Mana"] -= 4  # Reduce capacity
     else:
         print("You get lost but manage to find your way back after an adventure.")
     return success
@@ -126,7 +147,7 @@ def start_game():
     while characters:
         for player in characters[:]:
             print(f"\n{player.name}'s turn.")
-            action = input("Choose an action: [explore, rest, save, quit]: ")
+            action = input("Choose an action: [explore, rest, buy capacity, save, quit]: ")
 
             if action == "explore":
                 available_locations = [loc for loc in locations if loc.name not in player.successful_quests and loc.name not in player.attempted_quests]
@@ -158,6 +179,18 @@ def start_game():
             elif action == "save":
                 SaveUser.save_characters(characters)
                 print("Game progress saved.")
+            elif action == "buy capacity":
+                capacity_choice = input("Which capacity would you like to buy for 5 constitution (Mana, Stamina, Psy)? ").capitalize()
+                if capacity_choice in ["Mana", "Stamina", "Psy"]:
+                    if player.stats["Constitution"].value >= 5:
+                        player.stats["Constitution"].value -= 5
+                        player.capacity[capacity_choice] += 2
+                        print(f"{capacity_choice} capacity increased! New capacities: {player.capacity}")
+                    else:
+                        print("Not enough Constitution to buy capacity.")
+                else:
+                    print("Invalid capacity type.")
+
 
 class SaveUser:
     @staticmethod
