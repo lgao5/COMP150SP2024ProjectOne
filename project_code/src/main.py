@@ -45,6 +45,14 @@ class Character:
     def level_up(self):
         self.level += 1
         print(f"{self.name} has reached level {self.level}!")
+    def rest(self):
+        for stat in self.stats.values():
+            stat.value += random.randint(1, 3)
+        print(f"{self.name} has rested and gained strength.")
+    def reduce_stats(self, stats_to_reduce):
+        for stat_name, reduction in stats_to_reduce.items():
+            if stat_name in self.stats:
+                self.stats[stat_name].value = max(self.stats[stat_name].value - reduction, 0)  # Prevent stats from going below 0
 
 class Location:
     def __init__(self, name, description, events):
@@ -64,28 +72,36 @@ class Location:
             print("Quest failed. Restarting adventure...")
 
 def blacksmith_event(character):
-    success = character.stats["Strength"].value > 7
+    required_stats = {"Strength": 5, "Endurance": 5, "Vitality": 5}
+    success = all(character.stats[stat].value > requirement for stat, requirement in required_stats.items())
     if success:
         print("You help the blacksmith and earn a strong sword!")
+        character.reduce_stats(required_stats)
     else:
         print("You watch the blacksmith work and learn about sword making.")
     return success
 
 def castle_event(character):
-    success = character.stats["Wisdom"].value > 7
+    required_stats = {"Wisdom": 5, "Intelligence": 5, "Knowledge": 5}
+    success = all(character.stats[stat].value > requirement for stat, requirement in required_stats.items())
     if success:
         print("You provide wise counsel to the king and are rewarded!")
+        character.reduce_stats(required_stats)
     else:
         print("You wander the castle and marvel at its grandeur.")
     return success
 
 def forest_event(character):
-    success = character.stats["Dexterity"].value > 7
+    required_stats = {"Dexterity": 5, "Spirit": 5, "Willpower": 5}
+    success = all(character.stats[stat].value > requirement for stat, requirement in required_stats.items())
     if success:
         print("You navigate the forest adeptly, finding hidden treasures!")
+        character.reduce_stats(required_stats)
     else:
         print("You get lost but manage to find your way back after an adventure.")
     return success
+
+
 
 def start_game():
     print("Welcome to the simplified D&D game!")
@@ -127,9 +143,11 @@ def start_game():
                     player.successful_quests.add(location.name)
 
             elif action == "rest":
-                print(f"{player.name} takes a moment to rest and gather strength.")
+                player.rest()  # Call the new rest method
                 player.attempted_quests.clear()
-                print("You feel refreshed and ready for new adventures!")
+                print(f"{player.name} feels refreshed and ready for new adventures.")
+                print(player)  # Optionally display the updated stats
+
 
             elif action == "quit":
                 print(f"{player.name} is leaving the game.")
