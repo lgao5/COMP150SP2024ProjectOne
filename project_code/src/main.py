@@ -1,5 +1,6 @@
 import random
 import sys
+import csv
 
 # Simplified Statistic Class
 class Statistic:
@@ -107,9 +108,9 @@ def start_game():
     ]
 
     while characters:
-        for player in characters[:]:  # Iterate over a copy of the list
+        for player in characters[:]:
             print(f"\n{player.name}'s turn.")
-            action = input("Choose an action: [explore, rest, quit]: ")
+            action = input("Choose an action: [explore, rest, save, quit]: ")
 
             if action == "explore":
                 available_locations = [loc for loc in locations if loc.name not in player.successful_quests and loc.name not in player.attempted_quests]
@@ -136,6 +137,34 @@ def start_game():
                 if not characters:
                     print("All players have left. Thank you for playing!")
                 break  # End this player's turn
+            elif action == "save":
+                SaveUser.save_characters(characters)
+                print("Game progress saved.")
+
+class SaveUser:
+    @staticmethod
+    def save_characters(characters, filename="characters_save.csv"):
+        with open(filename, 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(["Name", "Level", "Experience", "Strength", "Dexterity", "Constitution", "Vitality", "Endurance", "Intelligence", "Wisdom", "Knowledge", "Willpower", "Spirit"])
+            for character in characters:
+                stats = character.stats
+                writer.writerow([
+                    character.name, 
+                    character.level, 
+                    character.experience,
+                    stats["Strength"].value, 
+                    stats["Dexterity"].value, 
+                    stats["Constitution"].value,
+                    stats["Vitality"].value, 
+                    stats["Endurance"].value, 
+                    stats["Intelligence"].value,
+                    stats["Wisdom"].value, 
+                    stats["Knowledge"].value, 
+                    stats["Willpower"].value, 
+                    stats["Spirit"].value
+                ])
+
 
 if __name__ == "__main__":
     start_game()
