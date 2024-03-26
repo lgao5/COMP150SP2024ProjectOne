@@ -403,16 +403,29 @@ class UserFactory:
         #creates user instance
         username = parser.parse("Enter a username: ")
         password = parser.parse("Enter a password: ")
-        user = User(username, password)
 
+        # check if user already exists
+        existing_user = UserFactory.get_user_by_username(username, "users.csv")
+        if existing_user:
+            print("User already exists.")
+            return existing_user
+        
         #save user data to CSV file
+        user = User(username, password)
         UserFactory.save_user_to_csv(user, "users.csv")
-
         return user
     
+    @staticmethod
     def save_user_to_csv(user:User, filename: str):
         #convert user instance to dict
         user_data = user.to_dict()
+
+        #check if file exists, if not, create it
+        if not os.path.exists(filename):
+            with open(filename, 'w', newline='') as csvfile:
+                fieldnames = user_data.keys()
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                writer.writeheader()
 
         #write user data to CSV file
         with open(filename, 'a', newline='') as csvfile:
