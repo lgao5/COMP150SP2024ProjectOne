@@ -16,6 +16,8 @@ class Character:
         self.name = name
         self.level = 1
         self.experience = 0
+        self.attempted_quests = set()
+        self.successful_quests = set()
         self.stats = {
             "Strength": Statistic("Strength", legacy_points),
             "Dexterity": Statistic("Dexterity", legacy_points),
@@ -42,10 +44,6 @@ class Character:
     def level_up(self):
         self.level += 1
         print(f"{self.name} has reached level {self.level}!")
-
-def level_up(self):
-    self.level += 1
-    print(f"{self.name} has reached level {self.level}!")
 
 class Location:
     def __init__(self, name, description, events):
@@ -91,45 +89,53 @@ def forest_event(character):
 def start_game():
     print("Welcome to the simplified D&D game!")
 
-    player_name = input("Enter your character's name: ")
-    player = Character(player_name)
-    print(player)
+    characters = []
+    num_players = int(input("Enter the number of characters (up to 10): "))
+    num_players = min(num_players, 10)  # Limit the number of players to 10
+
+    for _ in range(num_players):
+        player_name = input("Enter your character's name: ")
+        new_character = Character(player_name)
+        characters.append(new_character)
+        print("\nCharacter created:")
+        print(new_character)  # Display the character's stats
 
     locations = [
         Location("Blacksmith", "a place where weapons are made", [blacksmith_event]),
         Location("Castle", "the residence of the king", [castle_event]),
         Location("Mysterious Forest", "a forest full of secrets", [forest_event]),
     ]
-    attempted_quests = set()
-    successful_quests = set()
 
-    while True:
-        action = input("Choose an action: [explore, rest, quit]: ")
-        if action == "explore":
-            # Allow locations that have never been attempted or failed
-            available_locations = [loc for loc in locations if loc.name not in successful_quests and loc.name not in attempted_quests]
-            if not available_locations:
-                print("You've attempted all available adventures. Maybe rest or quit?")
-                continue
+    while characters:
+        for player in characters[:]:  # Iterate over a copy of the list
+            print(f"\n{player.name}'s turn.")
+            action = input("Choose an action: [explore, rest, quit]: ")
 
-            location = random.choice(available_locations)
-            success = location.explore(player)
-            location.complete_quest(player, success)
+            if action == "explore":
+                available_locations = [loc for loc in locations if loc.name not in player.successful_quests and loc.name not in player.attempted_quests]
+                if not available_locations:
+                    print("You've attempted all available adventures. Maybe rest or quit?")
+                    continue
 
-            # Add to attempted quests and successful quests if completed
-            attempted_quests.add(location.name)
-            if success:
-                successful_quests.add(location.name)
+                location = random.choice(available_locations)
+                success = location.explore(player)
+                location.complete_quest(player, success)
 
-        elif action == "rest":
-            print(f"{player.name} takes a moment to rest and gather strength.")
-            # Clear only the attempted quests, not the successful ones
-            attempted_quests.clear()
-            print("You feel refreshed and ready for new adventures!")
+                player.attempted_quests.add(location.name)
+                if success:
+                    player.successful_quests.add(location.name)
 
-        elif action == "quit":
-            print("Thank you for playing!")
-            break  # Ends the game session
+            elif action == "rest":
+                print(f"{player.name} takes a moment to rest and gather strength.")
+                player.attempted_quests.clear()
+                print("You feel refreshed and ready for new adventures!")
+
+            elif action == "quit":
+                print(f"{player.name} is leaving the game.")
+                characters.remove(player)  # Remove the character from the game
+                if not characters:
+                    print("All players have left. Thank you for playing!")
+                break  # End this player's turn
 
 if __name__ == "__main__":
     start_game()
