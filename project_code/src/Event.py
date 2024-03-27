@@ -7,6 +7,7 @@ Event instances would be the interactive elements within a location where player
 
 from enum import Enum
 from statistics import Statistic  # Import necessary classes
+from project_code.src.Character import Character
 
 class EventStatus(Enum):
     UNKNOWN = "unknown"
@@ -33,7 +34,10 @@ class Event:
 
     # list of event methods
     # NOTE: since we have these events already, idt we'll need to do anything else with the methods above this since each event has its own logic
-    def blacksmith_event(character):
+
+class BlacksmithEvent(Event):
+
+    def blacksmith_event(character: Character):
         if character.capacity["Stamina"] < 13:
             print(f"{character.name} does not have enough Stamina to help in the blacksmith.")
             return False
@@ -48,7 +52,9 @@ class Event:
             print("You watch the blacksmith work and learn about sword making.")
         return success
 
-    def castle_event(character):
+class CastleEvent(Event):
+
+    def castle_event(character: Character):
         if character.capacity["Psy"] < 14:
             print(f"{character.name} does not have enough Psy to counsel the king.")
             return False
@@ -63,7 +69,9 @@ class Event:
             print("You wander the castle and marvel at its grandeur.")
         return success
 
-    def forest_event(character):
+class ForestEvent(Event):
+    
+    def forest_event(character: Character):
         if character.capacity["Mana"] < 15:
             print(f"{character.name} does not have enough Mana to navigate the forest.")
             return False
