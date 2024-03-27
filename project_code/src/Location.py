@@ -12,7 +12,8 @@ Location instances can be created in the Game class and assigned different event
 Here's a basic structure for location.py:
 """
 import json
-from event import Event
+import random
+from project_code.src.Event import Event
 
 class Location:
     def __init__(self, name, description, parser, number_of_events=1):
@@ -28,9 +29,19 @@ class Location:
                 self.events.append(Event(self.parser, event_data))
 
     # Additional methods related to the location can be added here
-"""
-To add specific types of locations like a village, castle, pub, etc., 
-you can either extend the Location class for each specific type or use a factory design pattern to 
-create different kinds of locations based on input parameters. 
-Similarly, events can be customized to fit the narrative and gameplay mechanics of each location.
-"""
+    """
+    To add specific types of locations like a village, castle, pub, etc., 
+    you can either extend the Location class for each specific type or use a factory design pattern to 
+    create different kinds of locations based on input parameters. 
+    Similarly, events can be customized to fit the narrative and gameplay mechanics of each location.
+    """
+    def explore(self, character):
+        print(f"{character.name} explores the {self.name}.")
+        return random.choice(self.events)(character)
+
+    def complete_quest(self, character, success):
+        if success:
+            character.add_experience(5)  # Arbitrary experience points
+            print(f"Quest completed! {character.name} earned experience.")
+        else:
+            print("Quest failed. Restarting adventure...")  
