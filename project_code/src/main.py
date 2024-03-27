@@ -12,25 +12,30 @@ class Statistic:
         return f"{self.name}: {self.value}"
 
 class Character:
-    def __init__(self, name):
+    def __init__(self, name, level=1, experience=0, stats=None):
         legacy_points = random.randint(0, 50)
         self.name = name
-        self.level = 1
-        self.experience = 0
+        self.level = level
+        self.experience = experience
         self.attempted_quests = set()
         self.successful_quests = set()
-        self.stats = {
-            "Strength": Statistic("Strength", legacy_points),
-            "Dexterity": Statistic("Dexterity", legacy_points),
-            "Constitution": Statistic("Constitution", legacy_points),
-            "Vitality": Statistic("Vitality", legacy_points),
-            "Endurance": Statistic("Endurance", legacy_points),
-            "Intelligence": Statistic("Intelligence", legacy_points),
-            "Wisdom": Statistic("Wisdom", legacy_points),
-            "Knowledge": Statistic("Knowledge", legacy_points),
-            "Willpower": Statistic("Willpower", legacy_points),
-            "Spirit": Statistic("Spirit", legacy_points)
-        }
+
+        if stats:
+            self.stats = stats
+        else:
+            self.stats = {
+                "Strength": Statistic("Strength", legacy_points),
+                "Dexterity": Statistic("Dexterity", legacy_points),
+                "Constitution": Statistic("Constitution", legacy_points),
+                "Vitality": Statistic("Vitality", legacy_points),
+                "Endurance": Statistic("Endurance", legacy_points),
+                "Intelligence": Statistic("Intelligence", legacy_points),
+                "Wisdom": Statistic("Wisdom", legacy_points),
+                "Knowledge": Statistic("Knowledge", legacy_points),
+                "Willpower": Statistic("Willpower", legacy_points),
+                "Spirit": Statistic("Spirit", legacy_points)
+            }
+
         self.capacity = {
             "Mana": random.randint(10, 20),
             "Stamina": random.randint(10, 20),
@@ -122,8 +127,35 @@ def forest_event(character):
         print("You get lost but manage to find your way back after an adventure.")
     return success
 
+
+
 class SaveUser:
     @staticmethod
+    def load_characters(filename):
+        characters = []
+        with open(filename, 'r') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                stats = {
+                    "Strength": Statistic("Strength", int(row["Strength"])),
+                    "Dexterity": Statistic("Dexterity", int(row["Dexterity"])),
+                    "Constitution": Statistic("Constitution", int(row["Constitution"])),
+                    "Vitality": Statistic("Vitality", int(row["Vitality"])),
+                    "Endurance": Statistic("Endurance", int(row["Endurance"])),
+                    "Intelligence": Statistic("Intelligence", int(row["Intelligence"])),
+                    "Wisdom": Statistic("Wisdom", int(row["Wisdom"])),
+                    "Knowledge": Statistic("Knowledge", int(row["Knowledge"])),
+                    "Willpower": Statistic("Willpower", int(row["Willpower"])),
+                    "Spirit": Statistic("Spirit", int(row["Spirit"])),
+                }
+                character = Character(
+                    name=row["Name"],
+                    level=int(row["Level"]),
+                    experience=int(row["Experience"]),
+                    stats=stats
+                )
+                characters.append(character)
+        return characters
     def save_characters(characters, filename="characters_save.csv"):
         with open(filename, 'w', newline='') as file:
             writer = csv.writer(file)
@@ -146,57 +178,30 @@ class SaveUser:
                     stats["Spirit"].value
                 ])
 
-    @staticmethod
-    def load_characters(filename="characters_save.csv"):
-        characters = []
-        try:
-            with open(filename, 'r', newline='') as file:
-                reader = csv.reader(file)
-                next(reader) #skip header row
-                for row in reader:
-                    name, level, experience, strength, dexterity, constitution, vitality, endurance, intelligence, wisdom, knowledge, willpower, spirit = row
-                    # Create Character instance using the data from the CSV
-                    character = Character(name)
-                    character.level = int(level)
-                    character.experience = int(experience)
-                    character.stats["Strength"].value = int(strength)
-                    character.stats["Dexterity"].value = int(dexterity)
-                    character.stats["Constitution"].value = int(constitution)
-                    character.stats["Vitality"].value = int(vitality)
-                    character.stats["Endurance"].value = int(endurance)
-                    character.stats["Intelligence"].value = int(intelligence)
-                    character.stats["Wisdom"].value = int(wisdom)
-                    character.stats["Knowledge"].value = int(knowledge)
-                    character.stats["Willpower"].value = int(willpower)
-                    character.stats["Spirit"].value = int(spirit)
-                    characters.append(character)
-        except FileNotFoundError:
-            print(f"File '{filename}' not found.")
-        return characters
 
 def start_game():
     print("Welcome to the Towns Explorer game!")
+    
     load_choice = input("Do you want to load a saved game? (yes/no): ").lower()
     characters = []
 
     if load_choice == 'yes':
         file_path = input("Enter the path of the saved game file: ")
-        try: 
+        try:
             characters = SaveUser.load_characters(file_path)
             print("Game loaded successfully.")
         except FileNotFoundError:
             print("No saved game file found at the given path. Starting a new game.")
             load_choice = 'no'
+
     if load_choice != 'yes':
         num_players = int(input("Enter the number of characters (up to 10): "))
         num_players = min(num_players, 10)  # Limit the number of players to 10
 
         for _ in range(num_players):
             player_name = input("Enter your character's name: ")
-            new_character = Character(player_name)
-            characters.append(new_character)
-            print("\nCharacter created:")
-            print(new_character)  # Display the character's stats
+            characters.append(Character(player_name))
+            print(f"\nCharacter created: {characters[-1]}")  # Display the character's stats
 
     locations = [
         Location("Blacksmith", "a place where weapons are made", [blacksmith_event]),
@@ -250,6 +255,8 @@ def start_game():
                         print("Not enough Constitution to buy capacity.")
                 else:
                     print("Invalid capacity type.")
+
+
 
 
 if __name__ == "__main__":
