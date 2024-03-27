@@ -1,6 +1,8 @@
 # UserFactory.py
 from project_code.src.UserInputParser import UserInputParser
 from project_code.src.User import User
+from project_code.src.Statistic import *
+from project_code.src.Character import Character
 import csv
 
 
@@ -38,3 +40,53 @@ class UserFactory:
                 if row['username'] == username:
                     return User(row['username'], row['password'])
         return None
+    
+    @staticmethod
+    def save_characters(characters, filename="characters_save.csv"):
+        with open(filename, 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(["Name", "Level", "Experience", "Strength", "Dexterity", "Constitution", "Vitality", "Endurance", "Intelligence", "Wisdom", "Knowledge", "Willpower", "Spirit"])
+            for character in characters:
+                stats = character.stats
+                writer.writerow([
+                    character.name, 
+                    character.level, 
+                    character.experience,
+                    stats["Strength"].value, 
+                    stats["Dexterity"].value, 
+                    stats["Constitution"].value,
+                    stats["Vitality"].value, 
+                    stats["Endurance"].value, 
+                    stats["Intelligence"].value,
+                    stats["Wisdom"].value, 
+                    stats["Knowledge"].value, 
+                    stats["Willpower"].value, 
+                    stats["Spirit"].value
+                ])
+
+    @staticmethod
+    def load_characters(filename):
+        characters = []
+        with open(filename, 'r') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                stats = {
+                    "Strength": Statistic("Strength", int(row["Strength"])),
+                    "Dexterity": Statistic("Dexterity", int(row["Dexterity"])),
+                    "Constitution": Statistic("Constitution", int(row["Constitution"])),
+                    "Vitality": Statistic("Vitality", int(row["Vitality"])),
+                    "Endurance": Statistic("Endurance", int(row["Endurance"])),
+                    "Intelligence": Statistic("Intelligence", int(row["Intelligence"])),
+                    "Wisdom": Statistic("Wisdom", int(row["Wisdom"])),
+                    "Knowledge": Statistic("Knowledge", int(row["Knowledge"])),
+                    "Willpower": Statistic("Willpower", int(row["Willpower"])),
+                    "Spirit": Statistic("Spirit", int(row["Spirit"])),
+                }
+                character = Character(
+                    name=row["Name"],
+                    level=int(row["Level"]),
+                    experience=int(row["Experience"]),
+                    stats=stats
+                )
+                characters.append(character)
+        return characters
