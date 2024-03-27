@@ -31,5 +31,49 @@ class Event:
         # Logic for resolving the player's choice in the event
         pass
 
-    # Additional methods related to the event can be added here
+    # list of event methods
+    # NOTE: since we have these events already, idt we'll need to do anything else with the methods above this since each event has its own logic
+    def blacksmith_event(character):
+        if character.capacity["Stamina"] < 13:
+            print(f"{character.name} does not have enough Stamina to help in the blacksmith.")
+            return False
 
+        required_stats = {"Strength": 5, "Endurance": 5, "Vitality": 5}
+        success = all(character.stats[stat].value > requirement for stat, requirement in required_stats.items())
+        if success:
+            print("You help the blacksmith and earn a strong sword!")
+            character.reduce_stats(required_stats)
+            character.capacity["Stamina"] -= 3  # Reduce capacity
+        else:
+            print("You watch the blacksmith work and learn about sword making.")
+        return success
+
+    def castle_event(character):
+        if character.capacity["Psy"] < 14:
+            print(f"{character.name} does not have enough Psy to counsel the king.")
+            return False
+
+        required_stats = {"Wisdom": 5, "Intelligence": 5, "Knowledge": 5}
+        success = all(character.stats[stat].value > requirement for stat, requirement in required_stats.items())
+        if success:
+            print("You provide wise counsel to the king and are rewarded!")
+            character.reduce_stats(required_stats)
+            character.capacity["Psy"] -= 5  # Reduce capacity
+        else:
+            print("You wander the castle and marvel at its grandeur.")
+        return success
+
+    def forest_event(character):
+        if character.capacity["Mana"] < 15:
+            print(f"{character.name} does not have enough Mana to navigate the forest.")
+            return False
+
+        required_stats = {"Dexterity": 5, "Spirit": 5, "Willpower": 5}
+        success = all(character.stats[stat].value > requirement for stat, requirement in required_stats.items())
+        if success:
+            print("You navigate the forest adeptly, finding hidden treasures!")
+            character.reduce_stats(required_stats)
+            character.capacity["Mana"] -= 4  # Reduce capacity
+        else:
+            print("You get lost but manage to find your way back after an adventure.")
+        return success
