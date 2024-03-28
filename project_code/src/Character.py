@@ -46,9 +46,9 @@ class Character:
             "Psy": random.randint(10, 20)
         }
 
-    def add_capacity(self, capacity):
+    def add_capacities(self, capacities):
         """Add a capacity to the character."""
-        self.capacities.append(capacity)
+        self.capacity.append(capacities)
     """
     The add_capacity function in the Character 
     class is designed to manage different types of 
