@@ -41,6 +41,12 @@ class UserFactory:
                     return User(row['username'], row['password'])
         return None
     
+    """
+    Currently the following 2 methods work the way we'd want Users to be handled, not Characters. 
+    They *currently* work for Character class.
+    We *want* them to work for User class.
+    """
+
     @staticmethod
     def save_characters(characters, filename="characters_save.csv"):
         with open(filename, 'w', newline='') as file:
