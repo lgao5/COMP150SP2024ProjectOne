@@ -5,6 +5,7 @@ Here's a basic structure for event.py:
 Event instances would be the interactive elements within a location where players make decisions or face challenges.
 """
 
+
 from enum import Enum
 from statistics import Statistic  # Import necessary classes
 from project_code.src.Character import Character
