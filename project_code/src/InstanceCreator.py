@@ -3,6 +3,7 @@ from project_code.src.User import User
 from project_code.src.UserFactory import UserFactory
 from project_code.src.UserInputParser import UserInputParser
 
+#modify this class to work with current User and UserFactory classes -3/28/2024
 
 class InstanceCreator:
 

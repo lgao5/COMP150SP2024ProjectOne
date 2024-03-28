@@ -59,9 +59,10 @@ class Character:
 
     def __str__(self):
         stats_info = ', '.join(str(stat) for stat in self.stats.values())
-        return f"Character: {self.name}, Stats: {stats_info}, Level: {self.level}, Experience: {self.experience}"
-        capacity_info = ', '.join(f"{key}: {value}" for key, value in self.capacity.items())   #unreachable code
-        return f"{super().__str__()}, Capacity: {capacity_info}"   #unreachable code
+        stats_return = f"Character: {self.name}, Stats: {stats_info}, Level: {self.level}, Experience: {self.experience}"
+        capacity_info = ', '.join(f"{key}: {value}" for key, value in self.capacity.items())
+        capacity_return = f"{super().__str__()}, Capacity: {capacity_info}"
+        return stats_return + capacity_return
     
     def add_experience(self, amount):
         self.experience += amount
