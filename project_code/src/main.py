@@ -1,7 +1,7 @@
 import random
 import sys
 import csv
-
+#commit for daily -Abdul
 # Simplified Statistic Class
 class Statistic:
     def __init__(self, name, legacy_points):
