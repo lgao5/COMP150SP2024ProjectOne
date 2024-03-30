@@ -1,8 +1,8 @@
 import random
 import sys
 import csv
-#commit for daily -Abdul
-# Simplified Statistic Class
+
+
 class Statistic:
     def __init__(self, name, legacy_points):
         self.name = name
@@ -64,7 +64,8 @@ class Character:
         for stat_name, reduction in stats_to_reduce.items():
             if stat_name in self.stats:
                 self.stats[stat_name].value = max(self.stats[stat_name].value - reduction, 0)  # Prevent stats from going below 0
-
+    def has_completed_all_quests(self):
+        return len(self.successful_quests) == 3
 class Location:
     def __init__(self, name, description, events):
         self.name = name
@@ -81,6 +82,50 @@ class Location:
             print(f"Quest completed! {character.name} earned experience.")
         else:
             print("Quest failed. Restarting adventure...")
+def azure_dragon_encounter(character):
+    print("You have entered the Dungeon of the Azure Dragon!")
+    weapons = ["Halberd", "Heavy Crossbow", "Divine Rapier", "Recurve Bow", "Spellcaster"]
+    weapon_descriptions = {
+        "Halberd": "A massive blade on a long pole, excellent for keeping dragons at bay.",
+        "Heavy Crossbow": "A powerful ranged weapon, perfect for piercing dragon scales.",
+        "Divine Rapier": "A sword of light, deadly to all evil creatures.",
+        "Recurve Bow": "A bow with intricate designs, its arrows swift and true.",
+        "Spellcaster": "Harness the arcane, casting spells of destruction and protection."
+    }
+    dragon_hits = 0
+
+    print("Choose your weapon to fight the Azure Dragon:")
+    for i, weapon in enumerate(weapons, start=1):
+        print(f"{i}. {weapon}: {weapon_descriptions[weapon]}")
+    
+    weapon_choice = int(input("Select a weapon (1-5): "))
+    if 1 <= weapon_choice <= 5:
+        chosen_weapon = weapons[weapon_choice - 1]
+        print(f"You have chosen the {chosen_weapon}. The battle begins!")
+
+        while dragon_hits < 2:
+            combat_action = input(f"Choose an action with your {chosen_weapon}: [strike/block]: ").lower()
+            if combat_action == "strike":
+                dragon_hits += 1
+                print(f"You strike the Azure Dragon with your {chosen_weapon}! It reels from the hit.")
+            elif combat_action == "block":
+                print(f"You skillfully block the Azure Dragon's attack with your {chosen_weapon}.")
+            else:
+                print("In your hesitation, the dragon gains the upper hand!")
+
+            if dragon_hits == 2:
+                victory_description = {
+                    "Halberd": "With a mighty thrust of your Halberd, the dragon collapses, defeated by your valor.",
+                    "Heavy Crossbow": "Your final bolt finds its mark in the dragon's heart, ending its reign of terror.",
+                    "Divine Rapier": "Light from your Divine Rapier pierces the dragon, banishing its dark essence.",
+                    "Recurve Bow": "Your last arrow soars, striking true and felling the mighty beast.",
+                    "Spellcaster": "A burst of magical energy envelops the dragon, sealing its fate."
+                }
+                print(victory_description[chosen_weapon])
+                print(f"Congratulations {character.name}, you have defeated the Azure Dragon!")
+                break
+    else:
+        print("Invalid choice. The dragon attacks and you are unprepared! The battle is lost.")
 
 def blacksmith_event(character):
     if character.capacity["Stamina"] < 13:
@@ -227,6 +272,12 @@ def start_game():
                 player.attempted_quests.add(location.name)
                 if success:
                     player.successful_quests.add(location.name)
+                if player.has_completed_all_quests():
+                    final_choice = input("You have been offered a one time opportunity, do you wish to enter the Dungeon of the Azure Dragon? (yes/no): ").lower()
+                    if final_choice == "yes":
+                        azure_dragon_encounter(player)
+                        continue  # after the encounter
+            # existing exploration logic...
 
             elif action == "rest":
                 player.rest()  # Call the new rest method
