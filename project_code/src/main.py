@@ -68,14 +68,15 @@ class Character:
         return len(self.successful_quests) == 3
 class Location:
     def __init__(self, name, description, events):
+        # Enhanced descriptions for each location
         self.name = name
         self.description = description
         self.events = events
 
+    # Add more narrative elements in each location's exploration
     def explore(self, character):
-        print(f"{character.name} explores the {self.name}.")
+        print(f"{character.name} treads cautiously into the {self.name}. {self.description}")
         return random.choice(self.events)(character)
-
     def complete_quest(self, character, success):
         if success:
             character.add_experience(5)  # Arbitrary experience points
@@ -83,6 +84,7 @@ class Location:
         else:
             print("Quest failed. Restarting adventure...")
 def azure_dragon_encounter(character):
+    print("The air grows cold and the ground trembles as you step into the lair of the Azure Dragon.")
     print("You have entered the Dungeon of the Azure Dragon!")
     weapons = ["Halberd", "Heavy Crossbow", "Divine Rapier", "Recurve Bow", "Spellcaster"]
     weapon_descriptions = {
@@ -128,6 +130,7 @@ def azure_dragon_encounter(character):
         print("Invalid choice. The dragon attacks and you are unprepared! The battle is lost.")
 
 def blacksmith_event(character):
+    print(f"Entering the blacksmith's forge, {character.name} is greeted by the heat of blazing fires and the sound of hammering.")
     if character.capacity["Stamina"] < 13:
         print(f"{character.name} does not have enough Stamina to help in the blacksmith.")
         return False
@@ -143,6 +146,7 @@ def blacksmith_event(character):
     return success
 
 def castle_event(character):
+    print(f"As {character.name} approaches the majestic castle, the air fills with the sense of ancient power and intrigue.")
     if character.capacity["Psy"] < 14:
         print(f"{character.name} does not have enough Psy to counsel the king.")
         return False
@@ -158,6 +162,7 @@ def castle_event(character):
     return success
 
 def forest_event(character):
+    print(f"The Mysterious Forest stands before {character.name}, its depths whispering secrets and untold dangers.")
     if character.capacity["Mana"] < 15:
         print(f"{character.name} does not have enough Mana to navigate the forest.")
         return False
@@ -225,8 +230,10 @@ class SaveUser:
 
 
 def start_game():
-    print("Welcome to the Towns Explorer game!")
-    
+    print("Welcome to the Towns Explorer game, a world of mystery and adventure!")
+    print("In this land, heroes embark on quests to prove their valor and skill.")
+    print("Are you ready to carve your name into the legends of the realm?")
+
     load_choice = input("Do you want to load a saved game? (yes/no): ").lower()
     characters = []
 
