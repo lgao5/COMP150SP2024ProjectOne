@@ -1,8 +1,8 @@
 import random
 import sys
 import csv
-#commit for daily -Abdul
-# Simplified Statistic Class
+
+
 class Statistic:
     def __init__(self, name, legacy_points):
         self.name = name
@@ -10,6 +10,7 @@ class Statistic:
 
     def __str__(self):
         return f"{self.name}: {self.value}"
+
 
 class Character:
     def __init__(self, name, level=1, experience=0, stats=None):
@@ -44,9 +45,9 @@ class Character:
 
     def __str__(self):
         stats_info = ', '.join(str(stat) for stat in self.stats.values())
-        return f"Character: {self.name}, Stats: {stats_info}, Level: {self.level}, Experience: {self.experience}"
         capacity_info = ', '.join(f"{key}: {value}" for key, value in self.capacity.items())
-        return f"{super().__str__()}, Capacity: {capacity_info}"
+        return f"Character: {self.name}, Stats: {stats_info}, Capacity: {capacity_info}, Level: {self.level}, Experience: {self.experience}"
+
     def add_experience(self, amount):
         self.experience += amount
         if self.experience >= 10:  # Arbitrary value for leveling up
@@ -56,14 +57,68 @@ class Character:
     def level_up(self):
         self.level += 1
         print(f"{self.name} has reached level {self.level}!")
+
     def rest(self):
         for stat in self.stats.values():
             stat.value += random.randint(1, 3)
         print(f"{self.name} has rested and gained strength.")
+
     def reduce_stats(self, stats_to_reduce):
         for stat_name, reduction in stats_to_reduce.items():
             if stat_name in self.stats:
-                self.stats[stat_name].value = max(self.stats[stat_name].value - reduction, 0)  # Prevent stats from going below 0
+                self.stats[stat_name].value = max(self.stats[stat_name].value - reduction, 0)
+
+    def has_completed_all_quests(self):
+        return len(self.successful_quests) == 3
+
+    def to_dict(self):
+        """Convert character data to a dictionary for saving."""
+        return {
+            "Name": self.name,
+            "Level": self.level,
+            "Experience": self.experience,
+            "AttemptedQuests": ','.join(self.attempted_quests),
+            "SuccessfulQuests": ','.join(self.successful_quests),
+            "Strength": self.stats["Strength"].value,
+            "Dexterity": self.stats["Dexterity"].value,
+            "Constitution": self.stats["Constitution"].value,
+            "Vitality": self.stats["Vitality"].value,
+            "Endurance": self.stats["Endurance"].value,
+            "Intelligence": self.stats["Intelligence"].value,
+            "Wisdom": self.stats["Wisdom"].value,
+            "Knowledge": self.stats["Knowledge"].value,
+            "Willpower": self.stats["Willpower"].value,
+            "Spirit": self.stats["Spirit"].value,
+            "Mana": self.capacity["Mana"],
+            "Stamina": self.capacity["Stamina"],
+            "Psy": self.capacity["Psy"]
+        }
+
+    @staticmethod
+    def from_dict(data):
+        """Create a Character object from a dictionary."""
+        character = Character(
+            name=data["Name"],
+            level=int(data["Level"]),
+            experience=int(data["Experience"]),
+            stats={
+                "Strength": Statistic("Strength", int(data["Strength"])),
+                "Dexterity": Statistic("Dexterity", int(data["Dexterity"])),
+                "Constitution": Statistic("Constitution", int(data["Constitution"])),
+                "Vitality": Statistic("Vitality", int(data["Vitality"])),
+                "Endurance": Statistic("Endurance", int(data["Endurance"])),
+                "Intelligence": Statistic("Intelligence", int(data["Intelligence"])),
+                "Wisdom": Statistic("Wisdom", int(data["Wisdom"])),
+                "Knowledge": Statistic("Knowledge", int(data["Knowledge"])),
+                "Willpower": Statistic("Willpower", int(data["Willpower"])),
+                "Spirit": Statistic("Spirit", int(data["Spirit"]))
+            },
+            # capacities are not saved in the example provided but can be added if needed
+        )
+        character.attempted_quests = set(data["AttemptedQuests"].split(',')) if data["AttemptedQuests"] else set()
+        character.successful_quests = set(data["SuccessfulQuests"].split(',')) if data["SuccessfulQuests"] else set()
+        return character
+
 
 class Location:
     def __init__(self, name, description, events):
@@ -72,7 +127,7 @@ class Location:
         self.events = events
 
     def explore(self, character):
-        print(f"{character.name} explores the {self.name}.")
+        print(f"{character.name} treads cautiously into the {self.name}. {self.description}")
         return random.choice(self.events)(character)
 
     def complete_quest(self, character, success):
@@ -82,7 +137,59 @@ class Location:
         else:
             print("Quest failed. Restarting adventure...")
 
+
+def azure_dragon_encounter(character):
+    print("The air grows cold and the ground trembles as you step into the lair of the Azure Dragon.")
+    print("You have entered the Dungeon of the Azure Dragon!")
+    weapons = ["Halberd", "Heavy Crossbow", "Divine Rapier", "Recurve Bow", "Spellcaster"]
+    weapon_descriptions = {
+        "Halberd": "A massive blade on a long pole, excellent for keeping dragons at bay.",
+        "Heavy Crossbow": "A powerful ranged weapon, perfect for piercing dragon scales.",
+        "Divine Rapier": "A sword of light, deadly to all evil creatures.",
+        "Recurve Bow": "A bow with intricate designs, its arrows swift and true.",
+        "Spellcaster": "Harness the arcane, casting spells of destruction and protection."
+    }
+    dragon_hits = 0
+
+    print("Choose your weapon to fight the Azure Dragon:")
+    for i, weapon in enumerate(weapons, start=1):
+        print(f"{i}. {weapon}: {weapon_descriptions[weapon]}")
+
+    try:
+        weapon_choice = int(input("Select a weapon (1-5): "))
+        if 1 <= weapon_choice <= 5:
+            chosen_weapon = weapons[weapon_choice - 1]
+            print(f"You have chosen the {chosen_weapon}. The battle begins!")
+
+            while dragon_hits < 2:
+                combat_action = input(f"Choose an action with your {chosen_weapon}: [strike/block]: ").lower()
+                if combat_action == "strike":
+                    dragon_hits += 1
+                    print(f"You strike the Azure Dragon with your {chosen_weapon}! It reels from the hit.")
+                elif combat_action == "block":
+                    print(f"You skillfully block the Azure Dragon's attack with your {chosen_weapon}.")
+                else:
+                    print("In your hesitation, the dragon gains the upper hand!")
+
+                if dragon_hits == 2:
+                    victory_description = {
+                        "Halberd": "With a mighty thrust of your Halberd, the dragon collapses, defeated by your valor.",
+                        "Heavy Crossbow": "Your final bolt finds its mark in the dragon's heart, ending its reign of terror.",
+                        "Divine Rapier": "Light from your Divine Rapier pierces the dragon, banishing its dark essence.",
+                        "Recurve Bow": "Your last arrow soars, striking true and felling the mighty beast.",
+                        "Spellcaster": "A burst of magical energy envelops the dragon, sealing its fate."
+                    }
+                    print(victory_description[chosen_weapon])
+                    print(f"Congratulations {character.name}, you have defeated the Azure Dragon!")
+                    break
+        else:
+            print("Invalid choice. The dragon attacks and you are unprepared! The battle is lost.")
+    except ValueError:
+        print("Invalid input. Please enter a number between 1 and 5.")
+
+
 def blacksmith_event(character):
+    print(f"Entering the blacksmith's forge, {character.name} is greeted by the heat of blazing fires and the sound of hammering.")
     if character.capacity["Stamina"] < 13:
         print(f"{character.name} does not have enough Stamina to help in the blacksmith.")
         return False
@@ -97,7 +204,9 @@ def blacksmith_event(character):
         print("You watch the blacksmith work and learn about sword making.")
     return success
 
+
 def castle_event(character):
+    print(f"As {character.name} approaches the majestic castle, the air fills with the sense of ancient power and intrigue.")
     if character.capacity["Psy"] < 14:
         print(f"{character.name} does not have enough Psy to counsel the king.")
         return False
@@ -112,7 +221,9 @@ def castle_event(character):
         print("You wander the castle and marvel at its grandeur.")
     return success
 
+
 def forest_event(character):
+    print(f"The Mysterious Forest stands before {character.name}, its depths whispering secrets and untold dangers.")
     if character.capacity["Mana"] < 15:
         print(f"{character.name} does not have enough Mana to navigate the forest.")
         return False
@@ -128,7 +239,6 @@ def forest_event(character):
     return success
 
 
-
 class SaveUser:
     @staticmethod
     def load_characters(filename):
@@ -136,53 +246,33 @@ class SaveUser:
         with open(filename, 'r') as file:
             reader = csv.DictReader(file)
             for row in reader:
-                stats = {
-                    "Strength": Statistic("Strength", int(row["Strength"])),
-                    "Dexterity": Statistic("Dexterity", int(row["Dexterity"])),
-                    "Constitution": Statistic("Constitution", int(row["Constitution"])),
-                    "Vitality": Statistic("Vitality", int(row["Vitality"])),
-                    "Endurance": Statistic("Endurance", int(row["Endurance"])),
-                    "Intelligence": Statistic("Intelligence", int(row["Intelligence"])),
-                    "Wisdom": Statistic("Wisdom", int(row["Wisdom"])),
-                    "Knowledge": Statistic("Knowledge", int(row["Knowledge"])),
-                    "Willpower": Statistic("Willpower", int(row["Willpower"])),
-                    "Spirit": Statistic("Spirit", int(row["Spirit"])),
-                }
-                character = Character(
-                    name=row["Name"],
-                    level=int(row["Level"]),
-                    experience=int(row["Experience"]),
-                    stats=stats
-                )
-                characters.append(character)
+                characters.append(Character.from_dict(row))
         return characters
+
+    @staticmethod
     def save_characters(characters, filename="characters_save.csv"):
         with open(filename, 'w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(["Name", "Level", "Experience", "Strength", "Dexterity", "Constitution", "Vitality", "Endurance", "Intelligence", "Wisdom", "Knowledge", "Willpower", "Spirit"])
+            fieldnames = ["Name", "Level", "Experience", "AttemptedQuests", "SuccessfulQuests", "Strength", "Dexterity", "Constitution", "Vitality", "Endurance", "Intelligence", "Wisdom", "Knowledge", "Willpower", "Spirit", "Mana", "Stamina", "Psy"]
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+            writer.writeheader()
             for character in characters:
-                stats = character.stats
-                writer.writerow([
-                    character.name, 
-                    character.level, 
-                    character.experience,
-                    stats["Strength"].value, 
-                    stats["Dexterity"].value, 
-                    stats["Constitution"].value,
-                    stats["Vitality"].value, 
-                    stats["Endurance"].value, 
-                    stats["Intelligence"].value,
-                    stats["Wisdom"].value, 
-                    stats["Knowledge"].value, 
-                    stats["Willpower"].value, 
-                    stats["Spirit"].value
-                ])
+                writer.writerow(character.to_dict())
 
 
 def start_game():
-    print("Welcome to the Towns Explorer game!")
-    
-    load_choice = input("Do you want to load a saved game? (yes/no): ").lower()
+    print("Welcome to the Towns Explorer game, a world of mystery and adventure!")
+    print("In this land, heroes embark on quests to prove their valor and skill.")
+    print("Are you ready to carve your name into the legends of the realm?")
+
+    while True:
+        try:
+            load_choice = input("Do you want to load a saved game? (yes/no): ").lower()
+            if load_choice not in ["yes", "no"]:
+                raise ValueError("Please enter 'yes' or 'no'.")
+            break
+        except ValueError as e:
+            print(e)
+
     characters = []
 
     if load_choice == 'yes':
@@ -195,8 +285,14 @@ def start_game():
             load_choice = 'no'
 
     if load_choice != 'yes':
-        num_players = int(input("Enter the number of characters (up to 10): "))
-        num_players = min(num_players, 10)  # Limit the number of players to 10
+        while True:
+            try:
+                num_players = int(input("Enter the number of characters (up to 10): "))
+                if not 1 <= num_players <= 10:
+                    raise ValueError("Please enter a number between 1 and 10.")
+                break
+            except ValueError as e:
+                print(e)
 
         for _ in range(num_players):
             player_name = input("Enter your character's name: ")
@@ -227,36 +323,42 @@ def start_game():
                 player.attempted_quests.add(location.name)
                 if success:
                     player.successful_quests.add(location.name)
+                if player.has_completed_all_quests():
+                    final_choice = input("You have been offered a one time opportunity, do you wish to enter the Dungeon of the Azure Dragon? (yes/no): ").lower()
+                    if final_choice == "yes":
+                        azure_dragon_encounter(player)
+                        continue  # after the encounter
 
             elif action == "rest":
-                player.rest()  # Call the new rest method
+                player.rest()
                 player.attempted_quests.clear()
                 print(f"{player.name} feels refreshed and ready for new adventures.")
-                print(player)  # Optionally display the updated stats
-
+                print(player)
 
             elif action == "quit":
                 print(f"{player.name} is leaving the game.")
-                characters.remove(player)  # Remove the character from the game
+                characters.remove(player)
                 if not characters:
                     print("All players have left. Thank you for playing!")
-                break  # End this player's turn
+                break
+
             elif action == "save":
                 SaveUser.save_characters(characters)
                 print("Game progress saved.")
+
             elif action == "buy capacity":
-                capacity_choice = input("Which capacity would you like to buy for 5 constitution (Mana, Stamina, Psy)? ").capitalize()
-                if capacity_choice in ["Mana", "Stamina", "Psy"]:
+                try:
+                    capacity_choice = input("Which capacity would you like to buy for 5 constitution (Mana, Stamina, Psy)? ").capitalize()
+                    if capacity_choice not in ["Mana", "Stamina", "Psy"]:
+                        raise ValueError("Invalid capacity type. Please choose 'Mana', 'Stamina', or 'Psy'.")
                     if player.stats["Constitution"].value >= 5:
                         player.stats["Constitution"].value -= 5
                         player.capacity[capacity_choice] += 2
                         print(f"{capacity_choice} capacity increased! New capacities: {player.capacity}")
                     else:
                         print("Not enough Constitution to buy capacity.")
-                else:
-                    print("Invalid capacity type.")
-
-
+                except ValueError as e:
+                    print(e)
 
 
 if __name__ == "__main__":

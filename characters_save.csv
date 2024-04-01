@@ -1,2 +1,2 @@
-Name,Level,Experience,Strength,Dexterity,Constitution,Vitality,Endurance,Intelligence,Wisdom,Knowledge,Willpower,Spirit
-bob,2,0,7,3,7,3,6,7,2,9,1,7
+Name,Level,Experience,AttemptedQuests,SuccessfulQuests,Strength,Dexterity,Constitution,Vitality,Endurance,Intelligence,Wisdom,Knowledge,Willpower,Spirit,Mana,Stamina,Psy
+carl,2,5,"Mysterious Forest,Castle,Blacksmith","Mysterious Forest,Castle,Blacksmith",1,2,3,6,3,4,6,1,10,4,16,16,14
