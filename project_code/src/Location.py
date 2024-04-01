@@ -22,19 +22,6 @@ class Location:
         self.parser = parser
         self.events = [Event(self.parser) for _ in range(number_of_events)]
 
-    def load_custom_events(self, file_path):
-        with open(file_path, "r") as file:
-            data = json.load(file)
-            for event_data in data:
-                self.events.append(Event(self.parser, event_data))
-
-    # Additional methods related to the location can be added here
-    """
-    To add specific types of locations like a village, castle, pub, etc., 
-    you can either extend the Location class for each specific type or use a factory design pattern to 
-    create different kinds of locations based on input parameters. 
-    Similarly, events can be customized to fit the narrative and gameplay mechanics of each location.
-    """
     def explore(self, character):
         print(f"{character.name} explores the {self.name}.")
         return random.choice(self.events)(character)

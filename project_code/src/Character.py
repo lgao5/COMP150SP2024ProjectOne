@@ -1,23 +1,9 @@
 from project_code.src.Statistic import *
-#this is abdul testing
+import random
 
 
 class Character:
-
-    def init(self, name, level=1, experience=0, stats=None):
-        """
-        Core Stats: Everyone has these
-        - Strength: How much you can lift. How strong you are. How hard you punch, etc.
-        - Dexterity: How quick your limbs can perform intricate tasks. How adept you are at avoiding blows you anticipate. Impacts speed.
-        - Constitution: The bodies natural armor. Characters may have unique positive or negative constitutions that provide additional capabilities
-        - vitality: A measure of how lively you feel. How many Hit Points you have. An indirect measure of age.
-        - Endurance: How fast you recover from injuries. How quickly you recover from fatigue.
-        - Intelligence: How smart you are. How quickly you can connect the dots to solve problems. How fast you can think.
-        - Wisdom: How effectively you can make choices under pressure. Generally low in younger people.
-        - Knowledge: How much you know? This is a raw score for all knowledge. Characters may have specific areas of expertise with a bonus or deficit in some areas.
-        - Willpower: How quickly or effectively the character can overcome natural urges. How susceptible they are to mind control.
-        - Spirit: Catchall for ability to perform otherworldly acts. High spirit is rare. Different skills have different resource pools they might use like mana, stamina, etc. These are unaffected by spirit. Instead spirit is a measure of how hard it is to learn new otherworldly skills and/or master general skills.
-         """
+    def __init__(self, name, level=1, experience=0, stats=None):
         legacy_points = random.randint(0, 50)
         self.name = name
         self.level = level
@@ -47,24 +33,11 @@ class Character:
             "Psy": random.randint(10, 20)
         }
 
-    def add_capacities(self, capacities):
-        """Add a capacity to the character."""
-        self.capacity.append(capacities)
-    """
-    The add_capacity function in the Character 
-    class is designed to manage different types of 
-    "capacities" that a character might possess.
-    """
-    def _generate_name(self):
-        return "Bob"
-
     def __str__(self):
         stats_info = ', '.join(str(stat) for stat in self.stats.values())
-        stats_return = f"Character: {self.name}, Stats: {stats_info}, Level: {self.level}, Experience: {self.experience}"
         capacity_info = ', '.join(f"{key}: {value}" for key, value in self.capacity.items())
-        capacity_return = f"{super().__str__()}, Capacity: {capacity_info}"
-        return stats_return + capacity_return
-    
+        return f"Character: {self.name}, Stats: {stats_info}, Capacity: {capacity_info}, Level: {self.level}, Experience: {self.experience}"
+
     def add_experience(self, amount):
         self.experience += amount
         if self.experience >= 10:  # Arbitrary value for leveling up
@@ -79,8 +52,59 @@ class Character:
         for stat in self.stats.values():
             stat.value += random.randint(1, 3)
         print(f"{self.name} has rested and gained strength.")
-        
+
     def reduce_stats(self, stats_to_reduce):
         for stat_name, reduction in stats_to_reduce.items():
             if stat_name in self.stats:
-                self.stats[stat_name].value = max(self.stats[stat_name].value - reduction, 0)  # Prevent stats from going below 0
+                self.stats[stat_name].value = max(self.stats[stat_name].value - reduction, 0)
+
+    def has_completed_all_quests(self):
+        return len(self.successful_quests) == 3
+
+    def to_dict(self):
+        """Convert character data to a dictionary for saving."""
+        return {
+            "Name": self.name,
+            "Level": self.level,
+            "Experience": self.experience,
+            "AttemptedQuests": ','.join(self.attempted_quests),
+            "SuccessfulQuests": ','.join(self.successful_quests),
+            "Strength": self.stats["Strength"].value,
+            "Dexterity": self.stats["Dexterity"].value,
+            "Constitution": self.stats["Constitution"].value,
+            "Vitality": self.stats["Vitality"].value,
+            "Endurance": self.stats["Endurance"].value,
+            "Intelligence": self.stats["Intelligence"].value,
+            "Wisdom": self.stats["Wisdom"].value,
+            "Knowledge": self.stats["Knowledge"].value,
+            "Willpower": self.stats["Willpower"].value,
+            "Spirit": self.stats["Spirit"].value,
+            "Mana": self.capacity["Mana"],
+            "Stamina": self.capacity["Stamina"],
+            "Psy": self.capacity["Psy"]
+        }
+
+    @staticmethod
+    def from_dict(data):
+        """Create a Character object from a dictionary."""
+        character = Character(
+            name=data["Name"],
+            level=int(data["Level"]),
+            experience=int(data["Experience"]),
+            stats={
+                "Strength": Statistic("Strength", int(data["Strength"])),
+                "Dexterity": Statistic("Dexterity", int(data["Dexterity"])),
+                "Constitution": Statistic("Constitution", int(data["Constitution"])),
+                "Vitality": Statistic("Vitality", int(data["Vitality"])),
+                "Endurance": Statistic("Endurance", int(data["Endurance"])),
+                "Intelligence": Statistic("Intelligence", int(data["Intelligence"])),
+                "Wisdom": Statistic("Wisdom", int(data["Wisdom"])),
+                "Knowledge": Statistic("Knowledge", int(data["Knowledge"])),
+                "Willpower": Statistic("Willpower", int(data["Willpower"])),
+                "Spirit": Statistic("Spirit", int(data["Spirit"]))
+            },
+            # capacities are not saved in the example provided but can be added if needed
+        )
+        character.attempted_quests = set(data["AttemptedQuests"].split(',')) if data["AttemptedQuests"] else set()
+        character.successful_quests = set(data["SuccessfulQuests"].split(',')) if data["SuccessfulQuests"] else set()
+        return character

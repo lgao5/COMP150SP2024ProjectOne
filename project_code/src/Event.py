@@ -86,3 +86,54 @@ class ForestEvent(Event):
         else:
             print("You get lost but manage to find your way back after an adventure.")
         return success
+
+class DragonEvent(Event):
+
+    def azure_dragon_encounter(character: Character):
+        print("The air grows cold and the ground trembles as you step into the lair of the Azure Dragon.")
+        print("You have entered the Dungeon of the Azure Dragon!")
+        weapons = ["Halberd", "Heavy Crossbow", "Divine Rapier", "Recurve Bow", "Spellcaster"]
+        weapon_descriptions = {
+            "Halberd": "A massive blade on a long pole, excellent for keeping dragons at bay.",
+            "Heavy Crossbow": "A powerful ranged weapon, perfect for piercing dragon scales.",
+            "Divine Rapier": "A sword of light, deadly to all evil creatures.",
+            "Recurve Bow": "A bow with intricate designs, its arrows swift and true.",
+            "Spellcaster": "Harness the arcane, casting spells of destruction and protection."
+        }
+        dragon_hits = 0
+
+        print("Choose your weapon to fight the Azure Dragon:")
+        for i, weapon in enumerate(weapons, start=1):
+            print(f"{i}. {weapon}: {weapon_descriptions[weapon]}")
+
+        try:
+            weapon_choice = int(input("Select a weapon (1-5): "))
+            if 1 <= weapon_choice <= 5:
+                chosen_weapon = weapons[weapon_choice - 1]
+                print(f"You have chosen the {chosen_weapon}. The battle begins!")
+
+                while dragon_hits < 2:
+                    combat_action = input(f"Choose an action with your {chosen_weapon}: [strike/block]: ").lower()
+                    if combat_action == "strike":
+                        dragon_hits += 1
+                        print(f"You strike the Azure Dragon with your {chosen_weapon}! It reels from the hit.")
+                    elif combat_action == "block":
+                        print(f"You skillfully block the Azure Dragon's attack with your {chosen_weapon}.")
+                    else:
+                        print("In your hesitation, the dragon gains the upper hand!")
+
+                    if dragon_hits == 2:
+                        victory_description = {
+                            "Halberd": "With a mighty thrust of your Halberd, the dragon collapses, defeated by your valor.",
+                            "Heavy Crossbow": "Your final bolt finds its mark in the dragon's heart, ending its reign of terror.",
+                            "Divine Rapier": "Light from your Divine Rapier pierces the dragon, banishing its dark essence.",
+                            "Recurve Bow": "Your last arrow soars, striking true and felling the mighty beast.",
+                            "Spellcaster": "A burst of magical energy envelops the dragon, sealing its fate."
+                        }
+                        print(victory_description[chosen_weapon])
+                        print(f"Congratulations {character.name}, you have defeated the Azure Dragon!")
+                        break
+            else:
+                print("Invalid choice. The dragon attacks and you are unprepared! The battle is lost.")
+        except ValueError:
+            print("Invalid input. Please enter a number between 1 and 5.")
