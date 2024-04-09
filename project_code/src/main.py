@@ -1,7 +1,7 @@
 import random
 import sys
 import csv
-#comitt holder 3
+#comitt holder
 
 class Statistic:
     def __init__(self, name, legacy_points):
