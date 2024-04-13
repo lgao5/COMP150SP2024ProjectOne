@@ -9,7 +9,6 @@ from project_code.src.UserFactory import UserFactory
 
 
 
-
 class Game:
 
     def __init__(self):
