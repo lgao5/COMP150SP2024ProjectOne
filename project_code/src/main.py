@@ -1,7 +1,7 @@
 import random
 import sys
 import csv
-#comitt holder -plan to work later 
+#comitt holder -plan to work later
  
 class Statistic:
     def __init__(self, name, legacy_points):
